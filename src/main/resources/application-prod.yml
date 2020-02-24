@@ -1,0 +1,32 @@
+#日志默认配置
+logging:
+  level:
+    root: info
+    com.earth: info
+  register-shutdown-hook: true
+  file: message-provider
+  path: /var/log/message-provider
+server:
+  port: 8082
+
+
+
+spring:
+  profiles:
+    active: prod
+  application:
+    name: message-provider
+  datasource:
+    dbcp2:
+      url: jdbc:mysql://localhost:3306/DW
+      username: earth
+      password:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: earth
+    password: earthpass
+    publisher-confirms: true
+    publisher-returns: true

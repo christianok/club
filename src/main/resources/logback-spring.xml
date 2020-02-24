@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+  <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+  <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}"/>
+  <!--应用名称-->
+  <springProperty scope="context" name="application.name" source="spring.application.name"/>
+  <!--日志输出路径-->
+  <springProperty scope="context" name="logging.path" source="logging.path"
+                  defaultValue="/tmp/${application.name}"/>
+  <!--Root Logger输出的日志的文件名称-->
+  <springProperty scope="context" name="logging.file" source="logging.file"
+                  defaultValue="stdout"/>
+  <include resource="logback/logback-console-appender.xml"/>
+  <include resource="logback/logback-daily-file-appender.xml"/>
+  <include resource="logback/logback-daily-error-file-appender.xml"/>
+  <include resource="logback/logback-dklog-appender.xml"/>
+  <include resource="logging/logback/tracing.xml"/>
+  <jmxConfigurator/>
+
+
+  <!--Root Logger-->
+  <root level="${logging.level.root}">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="DAILY-FILE"/>
+    <appender-ref ref="DAILY-ERROR-FILE"/>
+  </root>
+
+</configuration>
