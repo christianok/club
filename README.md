@@ -1,1 +1,1 @@
-地震台网消息中间件项目
+personal Java club, aimed at proving something new
