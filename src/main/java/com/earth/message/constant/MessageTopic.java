@@ -1,5 +1,8 @@
 package com.earth.message.constant;
 
+/**
+ * 消息队列名称常量
+ */
 public class MessageTopic {
     public final static String ORDER = "topic.order";
     public final static String RESULT = "topic.result";

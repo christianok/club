@@ -4,20 +4,28 @@ import com.earth.message.constant.MessageTopic;
 import com.earth.message.model.entity.OrderMessage;
 import com.earth.message.model.entity.Student;
 import com.earth.message.rpc.ConsumerFeignService;
-import com.earth.message.service.ElasticSearchService;
-import com.earth.message.service.MessageProviderService;
-import com.earth.message.service.OrderService;
+import com.earth.message.service.*;
+import com.earth.message.utils.ApiResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.security.MD5Encoder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Encoder;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -46,11 +54,17 @@ public class IndexController {
     @Autowired
     private ConsumerFeignService consumerFeignService;
 
+    @Autowired
+    private ZooKeeperService zooKeeperService;
+
+    @Autowired
+    private HttpServer httpServer;
 
 
-    @RequestMapping("/template-search")
-    public List<Student> findDoc() {
-        return elasticSearchService.findDoc();
+
+    @RequestMapping(value = "/template-search", params = {"name", "number","age"})
+    public List<Student> searchEntry(String name, String number, Integer age, @PageableDefault(sort = "age", direction = Sort.Direction.DESC) Pageable pageable) {
+        return elasticSearchService.findDoc(name, number, age, pageable);
     }
 
     @RequestMapping("/client-search")
@@ -139,5 +153,37 @@ public class IndexController {
         map.put("createTime", createTime);
         rabbitTemplate.convertAndSend("non-existent-exchange", "TestDirectRouting", map);
         return "ok";
+    }
+
+    @GetMapping(value = "/algo")
+    public void test() {
+        String str = "abcc";
+        int i = httpServer.lengthOfLongestSubstring(str);
+        log.info("algo result is {}", i);
+    }
+
+    @GetMapping(value = "/lock", params = {"name"})
+    public void TestLock(String name) {
+        this.zooKeeperService.distributedLock(name);
+    }
+
+    @PostMapping("/upload")
+    public ApiResult upload(MultipartFile file) throws Exception {
+        System.out.println(file.getName());
+        System.out.println(file.getOriginalFilename());
+        System.out.println(file.getSize());
+        String folder = "/Users/zhuoli/Downloads/test/";
+        String[] fileArr = StringUtils.split(file.getOriginalFilename(), ".");
+        if (fileArr != null) {
+            String suffix = fileArr[1];
+            String fileName = LocalDateTime.now().toString();
+            String encodeFileName = MD5Encoder.encode(fileName.getBytes());
+            String totalNmae = encodeFileName + "." + suffix;
+            File localFile = new File(folder,  totalNmae);
+
+            file.transferTo(localFile);
+            return ApiResult.ok(totalNmae).build();
+        }
+        return null;
     }
 }
