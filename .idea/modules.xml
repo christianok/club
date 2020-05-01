@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/message.iml" filepath="$PROJECT_DIR$/.idea/message.iml" />
       <module fileurl="file://$PROJECT_DIR$/message-provider.iml" filepath="$PROJECT_DIR$/message-provider.iml" />
     </modules>
   </component>
