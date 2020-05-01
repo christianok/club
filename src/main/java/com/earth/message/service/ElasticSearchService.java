@@ -12,6 +12,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -39,15 +40,23 @@ public class ElasticSearchService {
         Student save = studentRepository.save(student);
     }
 
-    public List<Student> findDoc() {
+    public List<Student> findDoc(String name, String number, Integer age, Pageable pageable) {
         // 构造搜索条件
-        QueryBuilder builder = QueryBuilders.existsQuery("name");
-        SearchQuery searchQuery = new NativeSearchQueryBuilder().withQuery(builder).build();
-        log.debug("searchQuery {}", searchQuery);
-        // 执行查询
-        List<Student> novels = elasticsearchTemplate.queryForList(searchQuery, Student.class);
+        QueryBuilder queryBuilder = QueryBuilders
+                .boolQuery()
+                .must(QueryBuilders.termQuery("name", name))
+                .should(QueryBuilders.rangeQuery("age").lt(age))
+                .must(QueryBuilders.matchQuery("number", number));
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(queryBuilder)
+                .withPageable(pageable)
+                .build();
 
-        return novels;
+        List<Student> novels = elasticsearchTemplate.queryForList(searchQuery, Student.class);
+        if (novels != null) {
+            return novels;
+        }
+        return null;
     }
 
     public List<Student> singleMatch(String value) {
@@ -57,7 +66,7 @@ public class ElasticSearchService {
         return elasticsearchTemplate.queryForList(searchQuery, Student.class);
     }
 
-    public void queryCreate() {
+    private void queryCreate() {
         // 创建一个查询条件对象
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         // 拼接查询条件
@@ -77,13 +86,12 @@ public class ElasticSearchService {
 
         // 取出聚合结果
         Aggregations studentsAggregations = students.getAggregations();
-        Terms terms = (Terms)studentsAggregations.get("聚合名称，之前自定义的");
+        Terms terms = (Terms) studentsAggregations.get("聚合名称，之前自定义的");
 
         // 遍历取出聚合字段列的值，与对应的数量
         for (Terms.Bucket bucket : terms.getBuckets()) {
             String keyAsString = bucket.getKeyAsString(); // 聚合字段列的值
             long docCount = bucket.getDocCount();// 聚合字段对应的数量
         }
-
     }
 }

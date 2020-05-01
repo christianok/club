@@ -7,6 +7,8 @@
         <result column="age" jdbcType="INTEGER" property="age"/>
         <result column="clazz_id" jdbcType="INTEGER" property="clazzId"/>
         <result column="number" jdbcType="VARCHAR" property="number"/>
+        <association property="id"  column="id">
+        </association>
     </resultMap>
 
     <insert id="insert" parameterType="com.earth.message.model.dao.Student" useGeneratedKeys="true" keyProperty="id">
@@ -40,5 +42,10 @@
     <delete id="deleteById" parameterType="java.lang.Integer">
     delete from t_student where id = #{id}
   </delete>
+
+    <!--延迟加载-->
+    <select id="selectStudent" resultMap="BaseResultMap">
+
+    </select>
 
 </mapper>

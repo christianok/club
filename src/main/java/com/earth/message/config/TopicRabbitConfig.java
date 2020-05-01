@@ -13,6 +13,7 @@ public class TopicRabbitConfig {
 
     @Bean
     public Queue noticeQueue() {
+
         return new Queue(MessageTopic.NOTICE);
     }
 
