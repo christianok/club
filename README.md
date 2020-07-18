@@ -1,3 +1,7 @@
+##Preface
+[markdown basic grammar](https://www.jianshu.com/p/191d1e21f7ed)
+
+## Java Outline
 >####1.算法(精通)
 >####2.Java（精通）
 >>#####   基础
@@ -13,6 +17,7 @@
 >####10.linux性能分析 shell awk（熟悉） 
 >####11.tomcat/netty/nginx（熟悉）
 
+## Daily tasks
 
 ### *20200718 todo list*
 
